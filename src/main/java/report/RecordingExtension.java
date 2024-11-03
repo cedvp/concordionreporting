@@ -1,15 +1,17 @@
-package org.concordion.ConcordionReport;
+package nl.bluetrails.concordion.report;
 
 import org.concordion.api.extension.ConcordionExtender;
 import org.concordion.api.extension.ConcordionExtension;
-import org.concordion.api.listener.*;
+import org.concordion.api.listener.OuterExampleEvent;
+import org.concordion.api.listener.OuterExampleListener;
+
 import java.util.concurrent.ConcurrentHashMap;
 
 
-public class ConcordionRecordingExtension implements ConcordionExtension, OuterExampleListener {
-    private static final ConcurrentHashMap<String, ConcordionExportableTestResult> recordedResults = new ConcurrentHashMap<>();
+public class RecordingExtension implements ConcordionExtension, OuterExampleListener {
+    private static final ConcurrentHashMap<String, TestResultCompact> recordedResults = new ConcurrentHashMap<>();
 
-    public void addToMap(String key, ConcordionExportableTestResult value) {
+    public void addToMap(String key, TestResultCompact value) {
         recordedResults.put(key, value);
     }
 
@@ -21,7 +23,7 @@ public class ConcordionRecordingExtension implements ConcordionExtension, OuterE
         return recordedResults.size();
     }
 
-    public ConcurrentHashMap<String,ConcordionExportableTestResult> getFullResults(){
+    public ConcurrentHashMap<String, TestResultCompact> getFullResults(){
         return new ConcurrentHashMap<>(recordedResults);
     }
 
@@ -42,7 +44,7 @@ public class ConcordionRecordingExtension implements ConcordionExtension, OuterE
 
         long failures = event.getResultSummary().getFailureCount();
         long exceptions = event.getResultSummary().getExceptionCount();
-        ConcordionExportableTestResult xx = new ConcordionExportableTestResult(externalRef, event.getFixture().getFixtureType().getFixtureClass());
+        TestResultCompact xx = new TestResultCompact(externalRef, event.getFixture().getFixtureType().getFixtureClass());
         xx.setResult(failures>0||exceptions>0?1:0);
         recordedResults.put(externalRef,xx);
 

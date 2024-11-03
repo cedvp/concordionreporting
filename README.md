@@ -1,22 +1,32 @@
-This Concordion Extension allows to generate Reporting summaries on number of test OK vs NOK.
-Each test can be linked to an external reference (JIRA ID for example)
-and the starting page can be linked to an external reference (JIRA ID for the test plan for example).
+This Concordion extension allows to count and export scenario results, 
+attached to an external reference (which could refer to a JIRA Xray for example).
 
-The Extension will create
-* a csv file with the summary of reportable test scenarios
-* an html page with the same, ready to be sent by email to anyone who wants to be informed
-* a json file with the same, ready to be imported into jira for Xray follow up
-* an excel with the same, might you need the format additionally.
+The extension records the final result for each Fixture (Success or Failure) called, and then reports
+it from the main calling class :
 
-all files are produced in the same folder as the test results, with suffix "Report" and different extensions.
-If your main page test result is GeoFixture.html: 
+1) as a csv file
+2) as a summary html file
+3) as a JSON file ready to be imported into JIRA
+4) prints the final number of success and failures (1 failure or success per page)
 
-the files will be:
-GeoFixtureReport.csv
-GeoFixtureReport.html
-GeoFixtureReport.json
-GeoFixtureReport.xlsx
 
-Good luck.
+to activate this:
 
-Cedric.
+1)  on each of the called pages that need to be reported:
+    @TestIdAnnotation(externalReferenceKey = "CONC-999")
+    @Extensions(RecordingExtension.class)
+
+        where the externalReferenceKey is the unique test case external reference (the JIRA Xray for example)
+        and the extension RecordingExtension ensures the test results is recorded.
+
+2) on the starting page
+    @TestIdAnnotation(externalReferenceKey = "CONC-000")
+    @Extensions(ReportingExtension.class)
+
+        where the externalReferenceKey is the unique id for the test plan as a whole (for example the JIRA Xray Test Plan id)
+        and the extension ReportingExtension ensures reports are produced.
+
+Good luck and have fun.
+
+    Cedric.
+

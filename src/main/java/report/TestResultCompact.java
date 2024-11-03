@@ -1,8 +1,8 @@
-package org.concordion.ConcordionReport;
+package nl.bluetrails.concordion.report;
 
 import java.time.LocalDateTime;
 
-public class ConcordionExportableTestResult {
+public class TestResultCompact {
     public String getExternalRef() {
         return externalRef;
     }
@@ -44,7 +44,7 @@ public class ConcordionExportableTestResult {
     String resultReadable;
     LocalDateTime executionDateTime;
     Class concordionTestClass;
-    public ConcordionExportableTestResult(String ref, Class classTest){
+    public TestResultCompact(String ref, Class classTest){
         externalRef = ref;
         executionDateTime = LocalDateTime.now();
         concordionTestClass = classTest;
