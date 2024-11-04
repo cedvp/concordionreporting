@@ -52,7 +52,7 @@ public class TestResultCompact {
 
     public void setResult(int result) {
         this.result = result;
-        this.resultReadable=this.result==0?"SUCCESS":"FAILURE";
+        this.resultReadable=this.result==0?"PASS":"FAIL";
     }
 
 

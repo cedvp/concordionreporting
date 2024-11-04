@@ -4,6 +4,9 @@ import org.concordion.api.extension.ConcordionExtender;
 import org.concordion.api.extension.ConcordionExtension;
 import org.concordion.api.listener.OuterExampleEvent;
 import org.concordion.api.listener.OuterExampleListener;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -11,7 +14,10 @@ import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
+
 
 public class ReportingExtension implements ConcordionExtension, OuterExampleListener {
 ArrayList<String> failures = new ArrayList<>();
@@ -62,6 +68,36 @@ ArrayList<String> failures = new ArrayList<>();
 
     }
 
+    private void writeJSON(){
+        JSONObject finalJSON = new JSONObject();
+        try {
+            JSONArray tests = new JSONArray();
+            for (Map.Entry<String, TestResultCompact> entry : results.entrySet()) {
+                JSONObject currentTest = new JSONObject();
+                TestResultCompact currentTestResult = entry.getValue();
+                currentTest.put("testKey", entry.getKey());
+                currentTest.put("status", currentTestResult.getResultReadable());
+                tests.put(currentTest);
+            }
+            JSONObject tempJSON = new JSONObject();
+            tempJSON.put("testPlanKey", testplanExternalReference);
+            finalJSON.put("info", tempJSON);
+            finalJSON.put("tests", tests);
+
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+
+        try (FileWriter writer = new FileWriter(fileJson.toString())) {
+            writer.write(finalJSON.toString(4));
+            System.out.println("JSON Export file written to:");
+            System.out.println(fileJson.toUri());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
     private void getFileNames(OuterExampleEvent event){
         pathAndFileAsString = event.getResultSummary().getSpecificationDescription(); // Original file path
 
@@ -77,6 +113,7 @@ ArrayList<String> failures = new ArrayList<>();
 
         fileNameCsv  = fileNameJson = fileNameHtml= new String(filename);
         fileNameCsv = "Report_"+fileNameCsv.replace(".html",".csv");
+        fileNameJson = "Report_"+filename.replace(".html",".json");
         fileCsv = directory.resolve(fileNameCsv);
         fileHtml = directory.resolve(fileNameHtml);
         fileJson = directory.resolve(fileNameJson);
@@ -101,6 +138,7 @@ ArrayList<String> failures = new ArrayList<>();
         setCounts();
         setResultInLinesArray();
         writeCSV();
+        writeJSON();
 
         System.out.println("final stats:");
         System.out.println("Successes = "+countSuccesses+"/"+countTotal+" (= "+percentageSucceeded+"%)");
